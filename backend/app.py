@@ -4,7 +4,7 @@ import joblib
 
 app = Flask(__name__)
 
-svr_pipeline = joblib.load("models/linear_SVR_burnout.pkl")
+svr_pipeline = joblib.load("models/gradient_boosting_burnout.pkl")
 
 MODEL_FEATURES = [
 'tenure_months',
@@ -37,6 +37,7 @@ def predict():
         data = request.json
         print("Received data:", data)
         joblevel = data.get("joblevel")
+
         row = {
             "tenure_months":             data.get("tenure_months"),
             "salary":                   data.get("salary"),
@@ -56,6 +57,9 @@ def predict():
             "role_complexity_score":    data.get("role_complexity_score"),
             "career_progression_score": data.get("career_progression_score"),
         }
+        for category in JOB_LEVEL_CATEGORIES:
+            col_name = f"job_level_{category}"
+            row[col_name] = 1 if joblevel == category else 0
         input_df = pd.DataFrame([row])[MODEL_FEATURES]
         print(input_df)
         print("Input shape:", input_df.shape)
