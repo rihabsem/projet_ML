@@ -1,72 +1,73 @@
 import streamlit as st
 import requests
 
-st.title("Burnout Risk Prediction")
-with st.form("form_id"):
-    joblevel = st.selectbox(
-        "Job Level",
-        ['Choose a value',"Mid","Manager","Entry","Senior","Lead"]
-    )
-    tenure_months = st.number_input("Tenure month")
-    salary = st.number_input("Salary")
-    performance_score = st.number_input("Performance Score")
-    satisfaction_score = st.number_input("Satisfaction Score")  
-    workload_score = st.number_input("Workload Score")
-    team_sentiment = st.number_input("Team Sentiment")
-    project_completion_rate = st.number_input("Project Completion Rate")
-    overtime_hours = st.number_input("Overtime Hours")
-    training_participation = st.number_input("Traning Participation")
-    collaboration_score = st.number_input("Collaboration Score")
-    email_sentiment = st.number_input("Email Sentiment")
-    slack_activity = st.number_input("Slack Activity")
-    meeting_participation = st.number_input("Meeting Participation")
-    goal_achievement_rate = st.number_input("Goal Achievement Rate")
-    stress_level = st.number_input("Stress Level")
-    role_complexity_score = st.number_input("Role Complexity Score")
-    career_progression_score = st.number_input("Career Progression Score")
-    submit = st.form_submit_button("Submit")
-if submit:
-    if any(v == 0 for v in [
-        tenure_months, salary, performance_score,satisfaction_score,workload_score,
-        team_sentiment,project_completion_rate,training_participation,
-        collaboration_score, email_sentiment, slack_activity, meeting_participation,
-        goal_achievement_rate, stress_level, role_complexity_score, career_progression_score
-    ] or (u == "Choose a value" for u in ["jobelevel", "departement"])):
-        st.error("Veuillez remplir tous les champs")
+st.set_page_config(page_title="Burnout Predictor", layout="centered")
+st.title("Prédiction du Risque de Burnout")
 
+st.info(
+    "Veuillez remplir les informations ci-dessous. Les scores de 1 à 10 seront automatiquement normalisés pour le modèle.")
 
-    else:
-        payload = {
-            "joblevel": joblevel,
-            "tenure_months": tenure_months,
-            "salary": salary,
-            "performance_score": performance_score,
-            "satisfaction_score": satisfaction_score,
-            "workload_score": workload_score,
-            "team_sentiment": team_sentiment,
-            "project_completion_rate": project_completion_rate,
-            "overtime_hours": overtime_hours,
-            "training_participation": training_participation,
-            "collaboration_score": collaboration_score,
-            "email_sentiment": email_sentiment,
-            "slack_activity": slack_activity,
-            "meeting_participation": meeting_participation,
-            "goal_achievement_rate": goal_achievement_rate,
-            "stress_level": stress_level,
-            "role_complexity_score": role_complexity_score,
-            "career_progression_score": career_progression_score
-        }
+# --- SECTION 1 : INFOS GÉNÉRALES ---
+st.subheader("Profil Employé")
+job_level = st.selectbox("Niveau de poste", ["Entry", "Lead", "Manager", "Mid", "Senior"])
+tenure = st.number_input("Ancienneté (mois)", min_value=0, max_value=600, value=12)
+salary = st.number_input("Salaire Mensuel (€)", min_value=0, max_value=20000, value=3000)
 
-        try:
-            response = requests.post("http://localhost:5000/predict", json=payload)
+# --- SECTION 2 : ÉVALUATIONS ---
+st.subheader("Indicateurs (Échelle 1-10)")
 
-            if response.status_code == 200:
-                result = response.json()
-                st.success(f"Prediction: {result['prediction']}")
+# On définit les variables et leurs labels
+variables = {
+    "performance_score": "Performance globale",
+    "satisfaction_score": "Satisfaction au travail",
+    "workload_score": "Charge de travail perçue",
+    "team_sentiment": "Sentiment envers l'équipe",
+    "project_completion_rate": "Taux de complétion des projets",
+    "overtime_hours": "Intensité des heures supplémentaires",
+    "training_participation": "Participation aux formations",
+    "collaboration_score": "Niveau de collaboration",
+    "email_sentiment": "Ton des échanges emails",
+    "slack_activity": "Niveau d'activité Slack/Teams",
+    "meeting_participation": "Engagement en réunion",
+    "goal_achievement_rate": "Atteinte des objectifs",
+    "stress_level": "Niveau de stress ressenti",
+    "role_complexity_score": "Complexité des missions",
+    "career_progression_score": "Perspectives de carrière"
+}
+
+# Création dynamique des sliders
+scores_input = {}
+for key, label in variables.items():
+    scores_input[key] = st.slider(label, 1, 10, 5)
+
+# --- BOUTON DE PRÉDICTION ---
+if st.button("Calculer le risque maintenant", use_container_width=True):
+    # Préparation du dictionnaire de données
+    payload = {
+        "joblevel": job_level,
+        "tenure_months": float(tenure),
+        "salary": float(salary)
+    }
+
+    # Division par 10 de tous les scores avant l'envoi
+    for key, value in scores_input.items():
+        payload[key] = value / 10.0
+
+    try:
+        response = requests.post("http://localhost:5000/predict", json=payload)
+        if response.status_code == 200:
+            prediction = response.json()['prediction']
+            score = prediction * 100
+
+            # Affichage du résultat avec une couleur selon le risque
+            st.divider()
+            if prediction > 0.7:
+                st.error(f"Risque Élevé : {score:.2f}%")
+            elif prediction > 0.4:
+                st.warning(f"Risque Modéré : {score:.2f}%")
             else:
-                st.error("Backend error")
-
-        except Exception as e:
-            st.error(f"Connection error: {e}")
-
-
+                st.success(f" Risque Faible : {score:.2f}%")
+        else:
+            st.error(f"Erreur serveur : {response.json().get('error')}")
+    except Exception as e:
+        st.error(f"Erreur de connexion : {e}")
