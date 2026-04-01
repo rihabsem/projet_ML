@@ -1,0 +1,14 @@
+# IDE (PyCharm, VS Code)
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Data & Models (Optionnel : si vos fichiers .pkl sont très lourds)
+# *.pkl
+# *.csv

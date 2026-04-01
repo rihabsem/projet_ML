@@ -1,0 +1,79 @@
+# job_level                 849999 non-null  object 
+#  1   department                849999 non-null  object 
+#  2   tenure_months             849999 non-null  int64  
+#  3   salary                    849999 non-null  float64
+#  4   performance_score         849999 non-null  float64
+#  5   satisfaction_score        849999 non-null  float64
+#  6   workload_score            849999 non-null  float64
+#  7   team_sentiment            849999 non-null  float64
+#  8   project_completion_rate   849999 non-null  float64
+#  9   overtime_hours            849999 non-null  float64
+#  10  training_participation    849999 non-null  float64
+#  11  collaboration_score       849999 non-null  float64
+#  12  email_sentiment           849999 non-null  float64
+#  13  slack_activity            849999 non-null  float64
+#  14  meeting_participation     849999 non-null  float64
+#  15  goal_achievement_rate     849999 non-null  float64
+#  16  stress_level              849999 non-null  float64
+#  17  burnout_risk              849999 non-null  float64
+#  18  role_complexity_score     849999 non-null  float64
+#  19  career_progression_score  849999 non-null  float64
+
+
+🧾 1. Champs texte
+➤ st.text_input()
+
+Pour saisir du texte court (nom, email…)
+
+name = st.text_input("Nom")
+➤ st.text_area()
+
+Pour texte long (commentaires, description…)
+
+comment = st.text_area("Commentaire")
+🔢 2. Champs numériques
+➤ st.number_input()
+
+Pour entrer des nombres
+
+age = st.number_input("Âge", min_value=0, max_value=120)
+📅 3. Dates et heures
+➤ st.date_input()
+date = st.date_input("Date de naissance")
+➤ st.time_input()
+time = st.time_input("Heure")
+📋 4. Sélection (choix)
+➤ st.selectbox() (liste déroulante)
+gender = st.selectbox("Genre", ["Homme", "Femme", "Autre"])
+➤ st.multiselect() (choix multiples)
+skills = st.multiselect("Compétences", ["Python", "Java", "SQL"])
+➤ st.radio() (choix unique sous forme de boutons)
+choice = st.radio("Option", ["Oui", "Non"])
+☑️ 5. Cases à cocher
+➤ st.checkbox()
+agree = st.checkbox("J'accepte les conditions")
+🎚️ 6. Curseurs / sliders
+➤ st.slider()
+rating = st.slider("Note", 0, 10)
+📁 7. Upload de fichiers
+➤ st.file_uploader()
+file = st.file_uploader("Uploader un fichier")
+🔘 8. Boutons
+➤ st.button()
+if st.button("Clique ici"):
+    st.write("Button clicked!")
+➤ Dans un formulaire:
+submit = st.form_submit_button("Envoyer")
+🧱 9. Organisation (layout)
+➤ Colonnes
+col1, col2 = st.columns(2)
+with col1:
+    st.text_input("Nom")
+with col2:
+    st.text_input("Prénom")
+🧾 10. Formulaire complet (structure)
+with st.form("form_id"):
+    name = st.text_input("Nom")
+    age = st.number_input("Âge")
+    
+    submit = st.form_submit_button("Valider")
