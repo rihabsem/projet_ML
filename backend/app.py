@@ -6,7 +6,7 @@ import traceback
 app = Flask(__name__)
 
 # Chargement du modèle
-svr_pipeline = joblib.load("../models/linear_SVR_burnout.pkl")
+svr_pipeline = joblib.load("../models/linear_regression_burnout.pkl")
 
 MODEL_FEATURES = [
     'tenure_months', 'salary', 'performance_score', 'satisfaction_score',
