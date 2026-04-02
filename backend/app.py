@@ -5,9 +5,8 @@ import traceback
 
 app = Flask(__name__)
 
-# Chargement du modèle
-svr_pipeline = joblib.load("../models/linear_regression_burnout.pkl")
 
+svr_pipeline = joblib.load("../models/linear_regression_burnout_Prod.pkl")
 MODEL_FEATURES = [
     'tenure_months', 'salary', 'performance_score', 'satisfaction_score',
     'workload_score', 'team_sentiment', 'project_completion_rate',
@@ -25,17 +24,12 @@ def predict():
     try:
         data = request.json
 
-        # Encodage du Job Level
         job_encoded = JOB_MAPPING.get(data.get("joblevel"), 0)
 
-        # On construit le dictionnaire. Les scores arrivent déjà divisés par 10.
         row = {feat: data.get(feat, 0) for feat in MODEL_FEATURES if feat != "job_level_encoded"}
         row["job_level_encoded"] = job_encoded
 
-        # Création du DataFrame
         input_df = pd.DataFrame([row])[MODEL_FEATURES]
-
-        # Prédiction
         prediction = svr_pipeline.predict(input_df)[0]
 
         return jsonify({"prediction": float(prediction)})
